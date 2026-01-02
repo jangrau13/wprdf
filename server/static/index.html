@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WPRDF - Marimo Notebook Codebase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Marimo WASM Assets -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@marimo-team/frontend@latest/dist/assets/style.css">
+</head>
+<body class="bg-gray-50 h-screen flex flex-col">
+    <!-- Top Bar - Codebase Management -->
+    <div class="bg-white border-b border-gray-200 flex-shrink-0">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <h1 class="text-xl font-bold text-gray-800">🗂️ WPRDF</h1>
+                    <span id="notebookCount" class="text-sm text-gray-600">0 notebooks</span>
+                    <span id="currentNotebookName" class="text-sm text-blue-600 font-medium"></span>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <!-- Codebase Management -->
+                    <input type="file" id="dbUpload" accept=".db,.sqlite,.sqlite3" class="hidden" />
+                    <button onclick="document.getElementById('dbUpload').click()" 
+                            class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                        📂 Load Codebase
+                    </button>
+                    
+                    <button onclick="downloadCodebase()" 
+                            class="px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition">
+                        💾 Download Codebase
+                    </button>
+                    
+                    <div class="border-l border-gray-300 h-6 mx-2"></div>
+                    
+                    <button onclick="saveCurrentNotebook()" 
+                            class="px-3 py-1.5 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 transition">
+                        💾 Save Current
+                    </button>
+                    
+                    <div class="border-l border-gray-300 h-6 mx-2"></div>
+                    
+                    <button onclick="syncToServer()" 
+                            class="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
+                        ☁️ Push to Server
+                    </button>
+                    
+                    <button onclick="syncFromServer()" 
+                            class="px-3 py-1.5 text-sm bg-teal-600 text-white rounded hover:bg-teal-700 transition">
+                        ⬇️ Pull from Server
+                    </button>
+                    
+                    <div class="border-l border-gray-300 h-6 mx-2"></div>
+                    
+                    <button onclick="openNewNotebook()" 
+                            class="px-3 py-1.5 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 transition">
+                        ➕ New Notebook
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Status Messages -->
+            <div id="statusBar" class="hidden mt-2 text-sm"></div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Left Sidebar - Notebook List -->
+        <div class="w-64 bg-white border-r border-gray-200 overflow-y-auto flex-shrink-0">
+            <div class="p-3">
+                <input 
+                    type="text" 
+                    id="searchNotebooks" 
+                    placeholder="Search notebooks..."
+                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    oninput="filterNotebooks()"
+                />
+            </div>
+            
+            <div id="notebookList" class="px-2">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Main Content - Marimo Notebook -->
+        <div class="flex-1 bg-white overflow-auto">
+            <div id="marimoContainer" class="w-full h-full">
+                <!-- Marimo will be rendered here directly -->
+                <div id="welcomeScreen" class="flex items-center justify-center h-full text-gray-500">
+                    <div class="text-center">
+                        <p class="text-lg mb-4">Welcome to WPRDF</p>
+                        <p class="text-sm mb-6">Select a notebook from the sidebar or create a new one</p>
+                        <button onclick="loadExamples()" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                            📚 Load Example Notebooks
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.js"></script>
+    <script type="module" src="/static/wprdf.js"></script>
+</body>
+</html>

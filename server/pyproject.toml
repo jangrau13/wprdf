@@ -1,0 +1,30 @@
+[project]
+name = "wprdf-server"
+version = "0.1.0"
+description = "WPRDF - Local-first RDF notebook system with Marimo WASM"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiosqlite>=0.22.1",
+    "fastapi>=0.128.0",
+    "marimo>=0.18.4",
+    "sqlalchemy>=2.0.45",
+    "uvicorn>=0.40.0",
+    "pandas>=2.2.2",
+    "pyarrow>=16.1.0",
+    "openpyxl>=3.1.5",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.0.2",
+    "ruff>=0.14.10",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["wprdf_server"]

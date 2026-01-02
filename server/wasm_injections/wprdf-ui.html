@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WPRDF - Notebook Codebase</title>
+    <link rel="stylesheet" href="/wprdf/wprdf.css">
+</head>
+<body>
+    <!-- Top Banner -->
+    <div id="wprdf-topbar">
+        <div id="wprdf-topbar-content">
+            <div id="wprdf-brand">
+                <h1>WPRDF</h1>
+                <span id="wprdf-count">0 notebooks</span>
+                <span id="wprdf-current"></span>
+            </div>
+
+            <div id="wprdf-search-container">
+                <input type="text" id="wprdf-search" placeholder="Search notebooks..." />
+            </div>
+
+            <div id="wprdf-buttons">
+                <button class="wprdf-btn wprdf-btn-primary" onclick="wprdf.createNotebook()">New</button>
+                <button class="wprdf-btn wprdf-btn-success" onclick="wprdf.saveCurrentNotebook()">Save</button>
+                <button class="wprdf-btn wprdf-btn-secondary" onclick="wprdf.manageNotebooks()">Manage</button>
+                
+                <div class="wprdf-divider"></div>
+                
+                <div id="wprdf-notebook-dropdown">
+                    <button class="wprdf-btn wprdf-btn-secondary" onclick="wprdf.toggleNotebookList()">
+                        Notebooks ▾
+                    </button>
+                    <div id="wprdf-notebook-list"></div>
+                </div>
+                
+                <div class="wprdf-divider"></div>
+                
+                <input type="file" id="wprdf-db-upload" accept=".db,.sqlite,.sqlite3" />
+                <button class="wprdf-btn wprdf-btn-secondary" onclick="document.getElementById('wprdf-db-upload').click()">Load DB</button>
+                <button class="wprdf-btn wprdf-btn-secondary" onclick="wprdf.downloadDB()">Download</button>
+                
+                <div class="wprdf-divider"></div>
+                
+                <button class="wprdf-btn wprdf-btn-secondary" onclick="wprdf.syncToServer()">Push</button>
+                <button class="wprdf-btn wprdf-btn-secondary" onclick="wprdf.syncFromServer()">Pull</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Marimo iframe -->
+    <div id="marimo-app-container">
+        <iframe 
+            id="marimoFrame" 
+            src="/marimo/index.html"
+            allow="cross-origin-isolated"
+        ></iframe>
+    </div>
+
+    <!-- Modal -->
+    <div id="wprdf-modal" class="wprdf-modal-overlay">
+        <div class="wprdf-modal-content">
+            <div class="wprdf-modal-header">
+                <h2 id="wprdf-modal-title"></h2>
+                <button class="wprdf-modal-close" onclick="wprdf.closeModal()">&times;</button>
+            </div>
+            <div id="wprdf-modal-body" class="wprdf-modal-body"></div>
+            <div id="wprdf-modal-actions" class="wprdf-modal-footer"></div>
+        </div>
+    </div>
+
+    <div id="wprdf-status"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/sql-wasm.js"></script>
+    <script src="/wprdf/wprdf.js"></script>
+</body>
+</html>
