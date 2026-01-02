@@ -4,6 +4,48 @@ __generated_with = "0.18.4"
 app = marimo.App(width="medium")
 
 @app.cell(hide_code=True)
+async def __():
+    # WPRDF: sys is injected globally by wprdf.js. 
+    # We do NOT import it here to avoid "Multiple definitions" errors in Marimo.
+    
+    # Checked import of marimo
+    mo = sys.modules.get("marimo")
+    if mo is None:
+        import marimo as mo
+    
+    # 1. Infrastructure: WASM Environment & Dependencies
+    if "pyodide" in sys.modules:
+        micropip = sys.modules.get("micropip")
+        if micropip is None:
+            import micropip
+            
+        _pkgs = []
+        # Check if pandas is already available
+        if "pandas" not in sys.modules:
+            try:
+                import pandas as pd
+            except ImportError:
+                _pkgs.append("pandas")
+        
+        if _pkgs:
+            await micropip.install(_pkgs)
+        
+    return (mo, sys)
+
+@app.cell(hide_code=True)
+def __(sys):
+    # 2. Core Logic: Imports
+    # WPRDF: Defensive imports - check sys.modules first to avoid redundant loading in WASM.
+    # This ensures we use the already-initialized environment and avoid "Variable redefined" errors.
+    pd = sys.modules.get("pandas")
+    if pd is None: import pandas as pd
+    
+    io = sys.modules.get("io")
+    if io is None: import io
+    
+    return io, pd
+
+@app.cell(hide_code=True)
 def __(mo):
     mo.md(
         r"""
@@ -27,14 +69,13 @@ def __(mo):
 
 @app.cell
 def __():
-    # These are imported from the virtual filesystem
-    # (The WPRDF system automatically writes your other notebooks to .py files)
+    # These are imported from the database via wprdf_import (injected by wprdf.js)
     try:
-        import excel2wprdf
-        import json2wprdf
-        import merge_wprdf
+        excel2wprdf = wprdf_import("excel2wprdf")
+        json2wprdf = wprdf_import("json2wprdf")
+        merge_wprdf = wprdf_import("merge_wprdf")
         status = "✅ All modules imported successfully"
-    except ImportError as e:
+    except Exception as e:
         status = f"❌ Import failed: {str(e)}"
     
     return excel2wprdf, json2wprdf, merge_wprdf, status

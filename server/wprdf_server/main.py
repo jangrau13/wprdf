@@ -175,10 +175,15 @@ async def sync_download():
 
 @app.get("/api/template")
 async def get_template():
-    """Get the notebook template"""
-    template_path = BASE_DIR / "static" / "wprdf_template.py"
-    if template_path.exists():
-        return {"code": template_path.read_text()}
+    """Get the notebook template from the database"""
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            async with db.execute("SELECT code FROM notebooks WHERE name = 'template'") as cursor:
+                row = await cursor.fetchone()
+                if row:
+                    return {"code": row[0]}
+    except Exception as e:
+        logger.error(f"Failed to fetch template from DB: {e}")
     
     # Fallback template
     return {"code": """import marimo

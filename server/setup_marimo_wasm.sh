@@ -5,78 +5,9 @@ set -e
 echo "Setting up WPRDF - Automated Setup"
 
 # Create template notebook
-cat > /tmp/wprdf_template.py << 'EOF'
-import marimo
-
-__generated_with = "0.18.4"
-app = marimo.App(width="medium")
-
-@app.cell
-def __():
-    import marimo as mo
-    return (mo,)
-
-@app.cell
-def __(mo):
-    mo.md("""
-    # WPRDF Notebook
-    
-    Create RDF triples in Parquet format
-    """)
-    return
-
-@app.cell
-async def __():
-    import micropip
-    await micropip.install(["pandas"])
-    import pandas as pd
-    import io
-    import base64
-    from datetime import datetime
-    return base64, datetime, io, micropip, pd
-
-@app.cell
-def __(base64, datetime, pd):
-    WPRDF_COLUMNS = [
-        'subject', 'predicate', 'object_type', 'object',
-        'technical_timestamp', 'business_validity_from',
-        'business_validity_to', 'author', 'app'
-    ]
-    
-    def create_wprdf_row(subject, predicate, object_type, obj, author, app,
-                         business_from=None, business_to=None):
-        if isinstance(obj, bytes):
-            obj_encoded = base64.b64encode(obj).decode('utf-8')
-        else:
-            obj_encoded = base64.b64encode(str(obj).encode('utf-8')).decode('utf-8')
-        
-        return {
-            'subject': subject, 'predicate': predicate,
-            'object_type': object_type, 'object': obj_encoded,
-            'technical_timestamp': datetime.now().isoformat(),
-            'business_validity_from': (business_from or datetime.now()).isoformat(),
-            'business_validity_to': business_to.isoformat() if business_to else None,
-            'author': author, 'app': app
-        }
-    
-    return WPRDF_COLUMNS, create_wprdf_row
-
-@app.cell
-def __(WPRDF_COLUMNS, pd):
-    def create_wprdf_dataframe(rows):
-        if not rows:
-            return pd.DataFrame(columns=WPRDF_COLUMNS)
-        return pd.DataFrame(rows)
-    return create_wprdf_dataframe,
-
-if __name__ == "__main__":
-    app.run()
-EOF
+# (Removed: template is now managed via notebook_templates/wprdf_template.py and populate_db.py)
 
 mkdir -p ./static
-
-echo "Saving template..."
-cp /tmp/wprdf_template.py ./static/wprdf_template.py
 
 # Create marimo directory
 mkdir -p ./wasm_editor/marimo/assets
@@ -84,7 +15,7 @@ mkdir -p ./wasm_editor/marimo/assets
 # Export the template to WASM
 echo "Exporting template to WASM..."
 # Export marimo into marimo/ subdirectory - don't touch it!
-echo "y" | uv run marimo export html-wasm /tmp/wprdf_template.py \
+echo "y" | uv run marimo export html-wasm ./notebook_templates/wprdf_template.py \
     -o ./wasm_editor/marimo \
     --mode edit \
     --show-code
@@ -123,7 +54,18 @@ BOOTLOADER='<script>
 # Insert the bootloader at the start of <head>
 # We use a temporary file to avoid complex escaping with sed
 echo "$BOOTLOADER" > /tmp/bootloader.html
-sed -i '' "s|<head>|<head>$(cat /tmp/bootloader.html | tr -d '\n')|" ./wasm_editor/marimo/index.html
+
+# Use a more robust way to inject the bootloader that works in both macOS and Linux
+# and avoids "File name too long" errors with sed
+python3 -c '
+import sys
+with open("/tmp/bootloader.html", "r") as f:
+    bootloader = f.read()
+with open("./wasm_editor/marimo/index.html", "r") as f:
+    content = f.read()
+with open("./wasm_editor/marimo/index.html", "w") as f:
+    f.write(content.replace("<head>", "<head>" + bootloader))
+'
 
 cp ./wasm_injections/wprdf.css ./wasm_editor/wprdf/
 cp ./wasm_injections/wprdf.js ./wasm_editor/wprdf/
